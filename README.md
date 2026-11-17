@@ -36,12 +36,13 @@ The alert threshold is configurable in the Python script.
 
 ## How to Run
 
-Clone the repository:
+1. Clone the repository
+   git clone https://github.com/Pharaohacks/security-monitoring-lab.git
+2.  Enter the project directory
+   cd security-monitoring-lab
+ 3. Run the analyzer
+    python3 analyze_logs.py
 
-```bash
-git clone https://github.com/Pharaohacks/security-monitoring-lab.git
-cd security-monitoring-lab
-```
 
 Run the analyzer:
 
