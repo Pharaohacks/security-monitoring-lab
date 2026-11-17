@@ -68,6 +68,19 @@ for ip, events in failed_attempts.items():
             print(f"       Within {TIME_WINDOW_SECONDS} seconds")
             print(f"       Targeted usernames: {users}")
             break
+print("\nPOSSIBLE ACCOUNT COMPROMISE:")
+
+compromise_found = False
+
+for ip, events in failed_attempts.items():
+    for failed_time in events:
+        for successful_ip, count in successful_logins.items():
+            if ip == successful_ip:
+                print(f"[HIGH] {ip}: Failed login activity followed by successful login.")
+                compromise_found = True
+
+if not compromise_found:
+    print("No matching failed-login and successful-login IP patterns detected.")
 
 if not alerts_found:
     print("No time-based suspicious patterns detected.")
