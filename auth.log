@@ -1,0 +1,9 @@
+Nov 16 20:01:12 server sshd[101]: Accepted password for jayce from 192.168.1.15 port 5012 ssh2
+Nov 16 20:02:10 server sshd[102]: Failed password for admin from 185.220.101.5 port 5013 ssh2
+Nov 16 20:02:14 server sshd[103]: Failed password for admin from 185.220.101.5 port 5014 ssh2
+Nov 16 20:02:18 server sshd[104]: Failed password for admin from 185.220.101.5 port 5015 ssh2
+Nov 16 20:02:22 server sshd[105]: Failed password for root from 185.220.101.5 port 5016 ssh2
+Nov 16 20:03:01 server sshd[106]: Accepted password for jayce from 192.168.1.20 port 5017 ssh2
+Nov 16 20:04:15 server sshd[107]: Failed password for test from 45.33.12.8 port 5018 ssh2
+Nov 16 20:04:19 server sshd[108]: Failed password for test from 45.33.12.8 port 5019 ssh2
+Nov 16 20:04:23 server sshd[109]: Failed password for test from 45.33.12.8 port 5020 ssh2
