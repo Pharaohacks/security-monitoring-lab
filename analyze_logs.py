@@ -5,10 +5,11 @@ from datetime import datetime
 LOG_FILE = "auth.log"
 ALERT_THRESHOLD = 3
 TIME_WINDOW_SECONDS = 60
+LOG_YEAR = 2026
 
 failed_attempts = defaultdict(list)
 targeted_users = defaultdict(set)
-successful_logins = defaultdict(int)
+successful_logins = defaultdict(list)
 
 with open(LOG_FILE, "r") as file:
     for line in file:
@@ -24,17 +25,20 @@ with open(LOG_FILE, "r") as file:
             r"Accepted password for (\S+) from ([\d.]+)", line
         )
 
-        if failed and timestamp:
-            username, ip = failed.groups()
+        if timestamp and (failed or accepted):
             event_time = datetime.strptime(
-                "2026 " + timestamp.group(1), "%Y %b %d %H:%M:%S"
+                f"{LOG_YEAR} {timestamp.group(1)}",
+                "%Y %b %d %H:%M:%S"
             )
-            failed_attempts[ip].append(event_time)
-            targeted_users[ip].add(username)
 
-        elif accepted:
-            username, ip = accepted.groups()
-            successful_logins[ip] += 1
+            if failed:
+                username, ip = failed.groups()
+                failed_attempts[ip].append(event_time)
+                targeted_users[ip].add(username)
+
+            elif accepted:
+                username, ip = accepted.groups()
+                successful_logins[ip].append(event_time)
 
 print("\n===== SECURITY MONITORING REPORT =====")
 
@@ -43,8 +47,8 @@ for ip, events in failed_attempts.items():
     print(f"{ip}: {len(events)} failed attempts")
 
 print("\nSUCCESSFUL LOGINS:")
-for ip, count in successful_logins.items():
-    print(f"{ip}: {count} successful logins")
+for ip, events in successful_logins.items():
+    print(f"{ip}: {len(events)} successful logins")
 
 print("\nTIME-BASED SECURITY ALERTS:")
 
@@ -68,21 +72,34 @@ for ip, events in failed_attempts.items():
             print(f"       Within {TIME_WINDOW_SECONDS} seconds")
             print(f"       Targeted usernames: {users}")
             break
-print("\nPOSSIBLE ACCOUNT COMPROMISE:")
-
-compromise_found = False
-
-for ip, events in failed_attempts.items():
-    for failed_time in events:
-        for successful_ip, count in successful_logins.items():
-            if ip == successful_ip:
-                print(f"[HIGH] {ip}: Failed login activity followed by successful login.")
-                compromise_found = True
-
-if not compromise_found:
-    print("No matching failed-login and successful-login IP patterns detected.")
 
 if not alerts_found:
     print("No time-based suspicious patterns detected.")
 
+print("\nPOSSIBLE ACCOUNT COMPROMISE:")
+
+compromise_found = False
+
+for ip, failed_events in failed_attempts.items():
+    for failed_time in failed_events:
+        for successful_time in successful_logins.get(ip, []):
+            time_difference = (
+                successful_time - failed_time
+            ).total_seconds()
+
+            if 0 < time_difference <= TIME_WINDOW_SECONDS:
+                print(
+                    f"[HIGH] {ip}: Successful login occurred "
+                    f"{int(time_difference)} seconds after a failed login."
+                )
+                compromise_found = True
+                break
+
+        if compromise_found:
+            break
+
+if not compromise_found:
+    print("No matching failed-login and successful-login IP patterns detected.")
+
 print("\n===== INVESTIGATION COMPLETE =====")
+
