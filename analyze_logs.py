@@ -6,7 +6,12 @@ LOG_FILE = "auth.log"
 ALERT_THRESHOLD = 3
 TIME_WINDOW_SECONDS = 60
 LOG_YEAR = 2026
-
+def classify_severity(failed_count):
+    if failed_count >= 5:
+        return "HIGH"
+    elif failed_count >= ALERT_THRESHOLD:
+        return "MEDIUM"
+    return "LOW"
 failed_attempts = defaultdict(list)
 targeted_users = defaultdict(set)
 successful_logins = defaultdict(list)
@@ -68,7 +73,8 @@ for ip, events in failed_attempts.items():
             alerts_found = True
             users = ", ".join(sorted(targeted_users[ip]))
 
-            print(f"[HIGH] {ip}: {len(window)} failed attempts")
+            severity = classify_severity(len(window)) 
+            print(f"[{severity}] {ip}: {len(window)} failed attempts")
             print(f"       Within {TIME_WINDOW_SECONDS} seconds")
             print(f"       Targeted usernames: {users}")
             break
